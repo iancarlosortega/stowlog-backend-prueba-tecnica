@@ -1,0 +1,15 @@
+export const EnvConfiguration = () => ({
+	environment: process.env.ENVIRONMENT || 'DEVELOPMENT',
+	port: process.env.PORT,
+	db_password: process.env.DB_PASSWORD,
+	db_host: process.env.DB_HOST,
+	db_port: process.env.DB_PORT,
+	db_name: process.env.DB_NAME,
+	db_user: process.env.DB_USER,
+	jwt_secret: process.env.JWT_SECRET,
+	smtp_host: process.env.SMTP_HOST,
+	smtp_port: process.env.SMTP_PORT,
+	smtp_user: process.env.SMTP_USER,
+	smtp_pass: process.env.SMTP_PASS,
+	smtp_from: process.env.SMTP_FROM,
+});
