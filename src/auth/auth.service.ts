@@ -1,0 +1,68 @@
+import {
+	BadRequestException,
+	Injectable,
+	InternalServerErrorException,
+	Logger,
+	NotFoundException,
+} from '@nestjs/common';
+import { UsersService } from '@/users/users.service';
+import { LoginUserDto } from '@/auth/dtos/login-user.dto';
+import { RegisterUserDto } from '@/auth/dtos/register-user.dto';
+import { hashPassword } from '@/auth/utils/password';
+
+@Injectable()
+export class AuthService {
+	private logger = new Logger(AuthService.name);
+
+	constructor(private readonly usersService: UsersService) {}
+
+	async register(registerUserDto: RegisterUserDto) {
+		try {
+			const { password, ...userData } = registerUserDto;
+
+			const userExists = await this.usersService.findByUsername(
+				userData.username,
+			);
+
+			if (userExists) {
+				throw new BadRequestException(
+					`User with username ${userData.username} already exists`,
+				);
+			}
+
+			const hashedPassword = await hashPassword(password);
+			const newUser = await this.usersService.create({
+				...userData,
+				password: hashedPassword,
+			});
+
+			const { password: _, ...user } = newUser;
+
+			return {
+				user,
+				token: 'todo',
+			};
+		} catch (error) {
+			this.handleDBExceptions(error);
+		}
+	}
+
+	async login(loginUserDto: LoginUserDto) {}
+
+	private handleDBExceptions(error: any): never {
+		this.logger.error(error);
+		if (error.status === 400) {
+			throw new BadRequestException(error.response.message);
+		}
+		if (error.status === 404) {
+			throw new NotFoundException(error.response.message);
+		}
+		if (error.code === '23505') {
+			throw new BadRequestException(error.detail);
+		}
+		console.log(error);
+		throw new InternalServerErrorException(
+			'Unexpected error, check server logs',
+		);
+	}
+}
