@@ -1,9 +1,12 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Post } from '@nestjs/common';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from '@/auth/auth.service';
 import { LoginResponseDto } from '@/auth/dtos/login-response.dto';
 import { LoginUserDto } from '@/auth/dtos/login-user.dto';
 import { RegisterUserDto } from '@/auth/dtos/register-user.dto';
+import { Auth } from '@/auth/decorators/auth.decorator';
+import { GetUser } from '@/auth/decorators/get-user.decorator';
+import { User } from '@/users/entities/user.entity';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -11,6 +14,7 @@ export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
 	@Post('register')
+	@ApiOperation({ summary: 'Register a new user' })
 	@ApiResponse({
 		status: '2XX',
 		description: 'User registered succesfully',
@@ -21,6 +25,7 @@ export class AuthController {
 		return this.authService.register(registerUserDto);
 	}
 	@Post('login')
+	@ApiOperation({ summary: 'Login a user' })
 	@ApiResponse({
 		status: '2XX',
 		description: 'User logged in succesfully',
@@ -29,5 +34,24 @@ export class AuthController {
 	@ApiResponse({ status: '4XX', description: 'Invalid credentials' })
 	login(@Body() loginUserDto: LoginUserDto) {
 		return this.authService.login(loginUserDto);
+	}
+
+	@Get('refresh-token')
+	@Auth()
+	@ApiParam({
+		name: 'Authorization',
+		description: 'Bearer token',
+		type: 'string',
+		example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+	})
+	@ApiOperation({ summary: 'Refresh the authentication token' })
+	@ApiResponse({
+		status: '2XX',
+		description: 'Token revalidated',
+		type: LoginResponseDto,
+	})
+	@ApiResponse({ status: '4XX', description: 'Invalid token' })
+	refreshToken(@GetUser() user: User) {
+		return this.authService.refreshToken(user);
 	}
 }

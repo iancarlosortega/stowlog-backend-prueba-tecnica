@@ -11,6 +11,7 @@ import { LoginUserDto } from '@/auth/dtos/login-user.dto';
 import { RegisterUserDto } from '@/auth/dtos/register-user.dto';
 import { hashPassword, verifyPassword } from '@/auth/utils/password';
 import { JwtPayload } from '@/auth/interfaces/jwt-payload.interface';
+import { User } from '@/users/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -87,6 +88,13 @@ export class AuthService {
 		} catch (error) {
 			this.handleDBExceptions(error);
 		}
+	}
+
+	refreshToken(user: User) {
+		return {
+			user,
+			token: this.getJwtToken({ id: user.id }),
+		};
 	}
 
 	private getJwtToken(payload: JwtPayload) {
