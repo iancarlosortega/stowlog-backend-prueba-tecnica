@@ -8,11 +8,18 @@ import {
 	Body,
 	ParseUUIDPipe,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import {
+	ApiTags,
+	ApiOperation,
+	ApiResponse,
+	ApiParam,
+	ApiBearerAuth,
+} from '@nestjs/swagger';
 import { CreateTaskDto } from '@/tasks/dtos/create-task.dto';
 import { UpdateTaskDto } from '@/tasks/dtos/update-task.dto';
 import { Task } from '@/tasks/entities/task.entity';
 import { TasksService } from '@/tasks/tasks.service';
+import { Auth } from '@/auth/decorators/auth.decorator';
 
 @ApiTags('tasks')
 @Controller('tasks')
@@ -20,19 +27,26 @@ export class TasksController {
 	constructor(private readonly taskService: TasksService) {}
 
 	@Post()
+	@Auth()
 	@ApiOperation({ summary: 'Create a new task' })
+	@ApiBearerAuth('access-token')
 	@ApiResponse({
 		status: 201,
 		description: 'Task created successfully',
 		type: Task,
 	})
-	@ApiResponse({ status: 400, description: 'Bad Request - Invalid task data' })
+	@ApiResponse({
+		status: 400,
+		description: 'Bad Request - Invalid task data',
+	})
 	create(@Body() createTaskDto: CreateTaskDto): Promise<Task> {
 		return this.taskService.createTask(createTaskDto);
 	}
 
 	@Get(':id')
+	@Auth()
 	@ApiOperation({ summary: 'Get a task by ID' })
+	@ApiBearerAuth('access-token')
 	@ApiParam({
 		name: 'id',
 		description: 'Task ID',
@@ -50,7 +64,9 @@ export class TasksController {
 	}
 
 	@Patch(':id')
+	@Auth()
 	@ApiOperation({ summary: 'Update a task' })
+	@ApiBearerAuth('access-token')
 	@ApiParam({
 		name: 'id',
 		description: 'Task ID',
@@ -75,7 +91,9 @@ export class TasksController {
 	}
 
 	@Delete(':id')
+	@Auth()
 	@ApiOperation({ summary: 'Delete a task' })
+	@ApiBearerAuth('access-token')
 	@ApiParam({
 		name: 'id',
 		description: 'Task ID',

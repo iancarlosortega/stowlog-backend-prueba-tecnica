@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Task } from '@/tasks/entities/task.entity';
+import { AuthModule } from '@/auth/auth.module';
 
 import { TASK_REPOSITORY } from '@/tasks/repositories/task.repository';
 import { TaskRepositoryTypeOrm } from '@/tasks/repositories/task.repository.impl';
@@ -21,7 +22,7 @@ import { TasksController } from '@/tasks/tasks.controller';
 					: TaskRepositoryTypeOrm,
 		},
 	],
-	imports: [TypeOrmModule.forFeature([Task])],
+	imports: [TypeOrmModule.forFeature([Task]), AuthModule],
 	exports: [TasksService],
 })
 export class TasksModule {}

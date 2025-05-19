@@ -29,6 +29,14 @@ async function bootstrap() {
 			'This API provides a simple task management system. You can create, update, delete, and retrieve tasks. Each endpoint is secured with JWT authentication and requires a valid token to access.',
 		)
 		.setVersion('1.0')
+		.addBearerAuth(
+			{
+				type: 'http',
+				scheme: 'bearer',
+				bearerFormat: 'JWT',
+			},
+			'access-token',
+		)
 		.build();
 	const document = SwaggerModule.createDocument(app, config);
 	SwaggerModule.setup('api', app, document);

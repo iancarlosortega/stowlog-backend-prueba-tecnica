@@ -1,5 +1,10 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+	ApiBearerAuth,
+	ApiOperation,
+	ApiResponse,
+	ApiTags,
+} from '@nestjs/swagger';
 import { AuthService } from '@/auth/auth.service';
 import { LoginResponseDto } from '@/auth/dtos/login-response.dto';
 import { LoginUserDto } from '@/auth/dtos/login-user.dto';
@@ -38,13 +43,8 @@ export class AuthController {
 
 	@Get('refresh-token')
 	@Auth()
-	@ApiParam({
-		name: 'Authorization',
-		description: 'Bearer token',
-		type: 'string',
-		example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-	})
 	@ApiOperation({ summary: 'Refresh the authentication token' })
+	@ApiBearerAuth('access-token')
 	@ApiResponse({
 		status: '2XX',
 		description: 'Token revalidated',
