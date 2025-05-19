@@ -11,6 +11,7 @@ import { UsersModule } from '@/users/users.module';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { TasksModule } from './tasks/tasks.module';
 
 @Module({
 	imports: [
@@ -40,6 +41,7 @@ import { AppService } from './app.service';
 		}),
 		AuthModule,
 		UsersModule,
+		TasksModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],
