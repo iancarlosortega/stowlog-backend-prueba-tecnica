@@ -5,6 +5,7 @@ import {
 	PrimaryGeneratedColumn,
 	UpdateDateColumn,
 } from 'typeorm';
+import { UserRoles } from '@/auth/constants/ROLES';
 
 @Entity()
 export class User {
@@ -23,6 +24,12 @@ export class User {
 		select: false,
 	})
 	password: string;
+	@Column({
+		type: 'enum',
+		enum: UserRoles,
+		default: UserRoles.USER,
+	})
+	role: UserRoles;
 
 	@Column('bool', {
 		default: true,

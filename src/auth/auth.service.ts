@@ -5,16 +5,21 @@ import {
 	Logger,
 	NotFoundException,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '@/users/users.service';
 import { LoginUserDto } from '@/auth/dtos/login-user.dto';
 import { RegisterUserDto } from '@/auth/dtos/register-user.dto';
 import { hashPassword } from '@/auth/utils/password';
+import { JwtPayload } from '@/auth/interfaces/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
 	private logger = new Logger(AuthService.name);
 
-	constructor(private readonly usersService: UsersService) {}
+	constructor(
+		private readonly usersService: UsersService,
+		private readonly jwtService: JwtService,
+	) {}
 
 	async register(registerUserDto: RegisterUserDto) {
 		try {
@@ -30,17 +35,19 @@ export class AuthService {
 				);
 			}
 
-			const hashedPassword = await hashPassword(password);
+			const passwordHashed = await hashPassword(password);
 			const newUser = await this.usersService.create({
 				...userData,
-				password: hashedPassword,
+				password: passwordHashed,
 			});
 
 			const { password: _, ...user } = newUser;
 
 			return {
 				user,
-				token: 'todo',
+				token: this.getJwtToken({
+					id: newUser.id,
+				}),
 			};
 		} catch (error) {
 			this.handleDBExceptions(error);
@@ -48,6 +55,10 @@ export class AuthService {
 	}
 
 	async login(loginUserDto: LoginUserDto) {}
+
+	private getJwtToken(payload: JwtPayload) {
+		return this.jwtService.sign(payload);
+	}
 
 	private handleDBExceptions(error: any): never {
 		this.logger.error(error);
