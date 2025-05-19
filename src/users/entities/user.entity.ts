@@ -20,9 +20,7 @@ export class User {
 	})
 	username: string;
 
-	@Column('text', {
-		select: false,
-	})
+	@Column('text')
 	password: string;
 	@Column({
 		type: 'enum',
