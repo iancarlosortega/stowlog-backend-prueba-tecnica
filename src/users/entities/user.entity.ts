@@ -5,7 +5,7 @@ import {
 	PrimaryGeneratedColumn,
 	UpdateDateColumn,
 } from 'typeorm';
-import { UserRoles } from '@/auth/constants/ROLES';
+import { UserRoles } from '@/auth/constants/roles';
 
 @Entity()
 export class User {
