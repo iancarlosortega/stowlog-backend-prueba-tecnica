@@ -22,6 +22,11 @@ This is a simple API for managing tasks. It allows you to create, read, update, 
    ```bash
    docker-compose up -d
    ```
+5. Seeding the database with initial data (optional)
+   ```bash
+   pnpm db:seed
+   ```
+   This will create a user with the email `user@example.com` and password `123123`. And an admin user with the email `admin@example.com` and password `123123`. You can change the email and password in the `scripts/seed.ts` file.
 5. Start the development server:
    ```bash
    pnpm start:dev
