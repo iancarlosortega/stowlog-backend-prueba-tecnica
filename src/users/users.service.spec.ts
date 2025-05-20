@@ -3,10 +3,10 @@ import { NotFoundException } from '@nestjs/common';
 import { UsersService } from '@/users/users.service';
 import { USER_REPOSITORY } from '@/users/repositories/user.repository';
 import { CreateUserDto } from '@/users/dtos/create-user.dto';
-import { generateUUID } from '@/shared/utils/uuid';
-import { UserFactory } from './factories/user.factory';
-import { userFixtures } from './fixtures/user.fixtures';
+import { UserFactory } from '@/users/factories/user.factory';
+import { userFixtures } from '@/users/fixtures/user.fixtures';
 import { UserRoles } from '@/auth/constants/roles';
+import { generateUUID } from '@/shared/utils/uuid';
 
 describe('UsersService', () => {
 	let service: UsersService;
@@ -17,7 +17,6 @@ describe('UsersService', () => {
 		findByUsername: jest.Mock;
 		findByEmail: jest.Mock;
 	};
-
 	beforeEach(async () => {
 		mockUserRepository = {
 			create: jest.fn(),
@@ -25,19 +24,24 @@ describe('UsersService', () => {
 			findByUsername: jest.fn(),
 			findByEmail: jest.fn(),
 		};
-		userFactory = new UserFactory();
+
 		const module: TestingModule = await Test.createTestingModule({
 			providers: [
 				UsersService,
 				{
+					provide: UserFactory,
+					useClass: UserFactory,
+				},
+				{
 					provide: USER_REPOSITORY,
 					useValue: mockUserRepository,
 				},
-				UserFactory,
 			],
 		}).compile();
 
 		service = module.get<UsersService>(UsersService);
+		userFactory = module.get<UserFactory>(UserFactory);
+		jest.spyOn(userFactory, 'fromDto');
 	});
 
 	it('should be defined', () => {
@@ -47,50 +51,45 @@ describe('UsersService', () => {
 		it('should create a new user', async () => {
 			const createUserDto: CreateUserDto = userFixtures.createUserDto;
 
-			const expectedUser = userFactory.fromDto(createUserDto);
+			const userFromDto = userFactory.fromDto(createUserDto);
+			jest.spyOn(userFactory, 'fromDto').mockReturnValue(userFromDto);
 
-			mockUserRepository.create.mockResolvedValue(expectedUser);
+			mockUserRepository.create.mockResolvedValue(userFromDto);
 
 			const result = await service.create(createUserDto);
 
-			expect(mockUserRepository.create).toHaveBeenCalledWith(createUserDto);
-			expect(result).toEqual(expectedUser);
+			expect(userFactory.fromDto).toHaveBeenCalledWith(createUserDto);
+			expect(mockUserRepository.create).toHaveBeenCalledWith(userFromDto);
+			expect(result).toEqual(userFromDto);
 		});
-
 		it('should create an admin user', async () => {
-			const adminUser = userFactory.createAdmin();
+			const adminDto: CreateUserDto = userFixtures.createAdminDto;
+			const adminUser = userFactory.createAdmin(adminDto);
 
-			const adminDto: CreateUserDto = {
-				fullName: adminUser.fullName,
-				username: adminUser.username,
-				password: adminUser.password,
-				email: adminUser.email,
-			};
+			jest.spyOn(userFactory, 'fromDto').mockReturnValue(adminUser);
 
 			mockUserRepository.create.mockResolvedValue(adminUser);
 
 			const result = await service.create(adminDto);
 
-			expect(mockUserRepository.create).toHaveBeenCalledWith(adminDto);
+			expect(userFactory.fromDto).toHaveBeenCalledWith(adminDto);
+			expect(mockUserRepository.create).toHaveBeenCalledWith(adminUser);
 			expect(result).toEqual(adminUser);
 			expect(result.role).toEqual(UserRoles.ADMIN);
 		});
-
 		it('should create an inactive user', async () => {
-			const inactiveUser = userFactory.createInactive();
+			const inactiveDto: CreateUserDto = userFixtures.invalidUserDto;
 
-			const inactiveDto: CreateUserDto = {
-				fullName: inactiveUser.fullName,
-				username: inactiveUser.username,
-				password: inactiveUser.password,
-				email: inactiveUser.email,
-			};
+			const inactiveUser = userFactory.createInactive(inactiveDto);
+
+			jest.spyOn(userFactory, 'fromDto').mockReturnValue(inactiveUser);
 
 			mockUserRepository.create.mockResolvedValue(inactiveUser);
 
 			const result = await service.create(inactiveDto);
 
-			expect(mockUserRepository.create).toHaveBeenCalledWith(inactiveDto);
+			expect(userFactory.fromDto).toHaveBeenCalledWith(inactiveDto);
+			expect(mockUserRepository.create).toHaveBeenCalledWith(inactiveUser);
 			expect(result).toEqual(inactiveUser);
 			expect(result.isActive).toBe(false);
 		});

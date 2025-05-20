@@ -14,9 +14,11 @@ export class UsersService {
 		private readonly userRepository: UserRepository,
 		private readonly userFactory: UserFactory,
 	) {}
+
 	async create(createUserDto: CreateUserDto): Promise<User> {
 		const user = this.userFactory.fromDto(createUserDto);
-		return await this.userRepository.create(user);
+		const newUser = await this.userRepository.create(user);
+		return newUser;
 	}
 
 	async findOne(id: string): Promise<User | null> {

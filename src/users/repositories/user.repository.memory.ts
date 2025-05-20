@@ -1,24 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '@/users/entities/user.entity';
 import { UserRepository } from '@/users/repositories/user.repository';
-import { CreateUserDto } from '@/users/dtos/create-user.dto';
-import { generateUUID } from '@/shared/utils/uuid';
 
 @Injectable()
 export class UserRepositoryInMemory implements UserRepository {
 	private users: User[] = [];
 
-	async create(createUserDto: CreateUserDto): Promise<User> {
-		const newUser: User = {
-			id: generateUUID(),
-			...createUserDto,
-			isActive: true,
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		} as User;
-
-		this.users.push(newUser);
-		return newUser;
+	async create(user: User): Promise<User> {
+		this.users.push(user);
+		return user;
 	}
 
 	async findById(id: string): Promise<User | null> {
