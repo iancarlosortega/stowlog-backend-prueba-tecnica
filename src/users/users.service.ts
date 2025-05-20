@@ -1,6 +1,7 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { User } from '@/users/entities/user.entity';
 import { CreateUserDto } from '@/users/dtos/create-user.dto';
+import { UserFactory } from '@/users/factories/user.factory';
 import {
 	USER_REPOSITORY,
 	UserRepository,
@@ -11,10 +12,11 @@ export class UsersService {
 	constructor(
 		@Inject(USER_REPOSITORY)
 		private readonly userRepository: UserRepository,
+		private readonly userFactory: UserFactory,
 	) {}
-
 	async create(createUserDto: CreateUserDto): Promise<User> {
-		return await this.userRepository.create(createUserDto);
+		const user = this.userFactory.fromDto(createUserDto);
+		return await this.userRepository.create(user);
 	}
 
 	async findOne(id: string): Promise<User | null> {

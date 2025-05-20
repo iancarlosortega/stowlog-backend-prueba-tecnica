@@ -2,12 +2,15 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
 import { UsersService } from '@/users/users.service';
 import { USER_REPOSITORY } from '@/users/repositories/user.repository';
-import { User } from '@/users/entities/user.entity';
 import { CreateUserDto } from '@/users/dtos/create-user.dto';
 import { generateUUID } from '@/shared/utils/uuid';
+import { UserFactory } from './factories/user.factory';
+import { userFixtures } from './fixtures/user.fixtures';
+import { UserRoles } from '@/auth/constants/roles';
 
 describe('UsersService', () => {
 	let service: UsersService;
+	let userFactory: UserFactory;
 	let mockUserRepository: {
 		create: jest.Mock;
 		findById: jest.Mock;
@@ -22,7 +25,7 @@ describe('UsersService', () => {
 			findByUsername: jest.fn(),
 			findByEmail: jest.fn(),
 		};
-
+		userFactory = new UserFactory();
 		const module: TestingModule = await Test.createTestingModule({
 			providers: [
 				UsersService,
@@ -30,6 +33,7 @@ describe('UsersService', () => {
 					provide: USER_REPOSITORY,
 					useValue: mockUserRepository,
 				},
+				UserFactory,
 			],
 		}).compile();
 
@@ -39,26 +43,11 @@ describe('UsersService', () => {
 	it('should be defined', () => {
 		expect(service).toBeDefined();
 	});
-
 	describe('create', () => {
 		it('should create a new user', async () => {
-			const createUserDto: CreateUserDto = {
-				fullName: 'Ian Carlos Ortega',
-				username: 'iancarlosortega',
-				password: 'password123',
-				email: 'iancarlosortegaleon@gmail.com',
-			};
+			const createUserDto: CreateUserDto = userFixtures.createUserDto;
 
-			const expectedUser: User = {
-				id: generateUUID(),
-				fullName: 'Ian Carlos Ortega',
-				username: 'iancarlosortega',
-				password: 'password123',
-				email: 'iancarlosortegaleon@gmail.com',
-				isActive: true,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-			} as User;
+			const expectedUser = userFactory.fromDto(createUserDto);
 
 			mockUserRepository.create.mockResolvedValue(expectedUser);
 
@@ -67,21 +56,49 @@ describe('UsersService', () => {
 			expect(mockUserRepository.create).toHaveBeenCalledWith(createUserDto);
 			expect(result).toEqual(expectedUser);
 		});
-	});
 
+		it('should create an admin user', async () => {
+			const adminUser = userFactory.createAdmin();
+
+			const adminDto: CreateUserDto = {
+				fullName: adminUser.fullName,
+				username: adminUser.username,
+				password: adminUser.password,
+				email: adminUser.email,
+			};
+
+			mockUserRepository.create.mockResolvedValue(adminUser);
+
+			const result = await service.create(adminDto);
+
+			expect(mockUserRepository.create).toHaveBeenCalledWith(adminDto);
+			expect(result).toEqual(adminUser);
+			expect(result.role).toEqual(UserRoles.ADMIN);
+		});
+
+		it('should create an inactive user', async () => {
+			const inactiveUser = userFactory.createInactive();
+
+			const inactiveDto: CreateUserDto = {
+				fullName: inactiveUser.fullName,
+				username: inactiveUser.username,
+				password: inactiveUser.password,
+				email: inactiveUser.email,
+			};
+
+			mockUserRepository.create.mockResolvedValue(inactiveUser);
+
+			const result = await service.create(inactiveDto);
+
+			expect(mockUserRepository.create).toHaveBeenCalledWith(inactiveDto);
+			expect(result).toEqual(inactiveUser);
+			expect(result.isActive).toBe(false);
+		});
+	});
 	describe('findOne', () => {
 		it('should return a user if found', async () => {
 			const userId = generateUUID();
-			const expectedUser: User = {
-				id: userId,
-				fullName: 'Ian Carlos Ortega',
-				username: 'iancarlosortega',
-				password: 'password123',
-				email: 'iancarlosortegaleon@gmail.com',
-				isActive: true,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-			} as User;
+			const expectedUser = userFactory.createUser({ id: userId });
 
 			mockUserRepository.findById.mockResolvedValue(expectedUser);
 
@@ -101,20 +118,10 @@ describe('UsersService', () => {
 			expect(mockUserRepository.findById).toHaveBeenCalledWith(userId);
 		});
 	});
-
 	describe('findByUsername', () => {
 		it('should return a user if found by username', async () => {
 			const username = 'iancarlosortega';
-			const expectedUser: User = {
-				id: generateUUID(),
-				fullName: 'Ian Carlos Ortega',
-				username,
-				password: 'password123',
-				email: 'iancarlosortegaleon@gmail.com',
-				isActive: true,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-			} as User;
+			const expectedUser = userFactory.createUser({ username });
 
 			mockUserRepository.findByUsername.mockResolvedValue(expectedUser);
 
@@ -134,20 +141,10 @@ describe('UsersService', () => {
 			expect(result).toBeNull();
 		});
 	});
-
 	describe('findByEmail', () => {
 		it('should return a user if found by email', async () => {
 			const email = 'iancarlosortegaleon@gmail.com';
-			const expectedUser: User = {
-				id: generateUUID(),
-				fullName: 'Ian Carlos Ortega',
-				username: 'iancarlosortega',
-				password: 'password123',
-				email,
-				isActive: true,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-			} as User;
+			const expectedUser = userFactory.createUser({ email });
 
 			mockUserRepository.findByEmail.mockResolvedValue(expectedUser);
 

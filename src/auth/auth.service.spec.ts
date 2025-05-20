@@ -3,12 +3,12 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '@/users/users.service';
 import { User } from '@/users/entities/user.entity';
+import { UserFactory } from '@/users/factories/user.factory';
+import { userFixtures } from '@/users/fixtures/user.fixtures';
 import { AuthService } from '@/auth/auth.service';
 import { LoginUserDto } from '@/auth/dtos/login-user.dto';
 import { RegisterUserDto } from '@/auth/dtos/register-user.dto';
-import { UserRoles } from '@/auth/constants/roles';
 import * as passwordUtils from '@/auth/utils/password';
-import { generateUUID } from '@/shared/utils/uuid';
 
 jest.mock('./utils/password');
 
@@ -16,18 +16,9 @@ describe('AuthService', () => {
 	let service: AuthService;
 	let usersService: UsersService;
 	let jwtService: JwtService;
-
-	const mockUser: User = {
-		id: generateUUID(),
-		fullName: 'Ian Carlos Ortega',
-		username: 'iancarlosortega',
-		email: 'iancarlosortegaleon@gmail.com',
-		password: 'hashedpassword',
-		role: UserRoles.USER,
-		isActive: true,
-		createdAt: new Date(),
-		updatedAt: new Date(),
-	};
+	let userFactory: UserFactory;
+	let mockUser: User;
+	let loginDto: LoginUserDto;
 
 	const mockUsersService = {
 		findByUsername: jest.fn(),
@@ -38,9 +29,17 @@ describe('AuthService', () => {
 	const mockJwtService = {
 		sign: jest.fn(),
 	};
-
 	beforeEach(async () => {
 		jest.clearAllMocks();
+		userFactory = new UserFactory();
+		mockUser = userFactory.createUser({
+			password: 'hashedpassword',
+		});
+
+		loginDto = {
+			username: mockUser.username,
+			password: 'Test123!',
+		};
 
 		const module: TestingModule = await Test.createTestingModule({
 			providers: [
@@ -58,12 +57,9 @@ describe('AuthService', () => {
 	it('should be defined', () => {
 		expect(service).toBeDefined();
 	});
-
 	describe('register', () => {
 		const registerDto: RegisterUserDto = {
-			fullName: 'Ian Carlos Ortega',
-			username: 'iancarlosortega',
-			email: 'iancarlosortegaleon@gmail.com',
+			...userFixtures.createUserDto,
 			password: 'Test123!',
 		};
 
@@ -105,13 +101,7 @@ describe('AuthService', () => {
 			);
 		});
 	});
-
 	describe('login', () => {
-		const loginDto: LoginUserDto = {
-			username: 'testuser',
-			password: 'Test123!',
-		};
-
 		it('should login a user successfully', async () => {
 			mockUsersService.findByUsername.mockResolvedValue(mockUser);
 			(passwordUtils.verifyPassword as jest.Mock).mockResolvedValue(true);
@@ -141,9 +131,11 @@ describe('AuthService', () => {
 				loginDto.username,
 			);
 		});
-
 		it('should throw BadRequestException if user is inactive', async () => {
-			const inactiveUser = { ...mockUser, isActive: false };
+			const inactiveUser = userFactory.createInactive({
+				password: mockUser.password,
+			});
+
 			mockUsersService.findByUsername.mockResolvedValue(inactiveUser);
 
 			await expect(service.login(loginDto)).rejects.toThrow(
