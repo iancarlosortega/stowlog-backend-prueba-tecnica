@@ -35,6 +35,16 @@ export class User {
 	})
 	username: string;
 
+	@ApiProperty({
+		example: 'iancarlosortegaleon@gmail.com',
+		description: 'Must be unique',
+		uniqueItems: true,
+	})
+	@Column('text', {
+		unique: true,
+	})
+	email: string;
+
 	@Column('text')
 	password: string;
 

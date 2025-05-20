@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { NotificationStrategy } from './notification.strategy';
+import { NotificationStrategy } from '@/notifications/strategies/notification.strategy';
 
 @Injectable()
 export class EmailNotificationStrategy implements NotificationStrategy {
