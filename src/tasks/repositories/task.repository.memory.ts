@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { randomUUID } from 'crypto';
 import { Task } from '@/tasks/entities/task.entity';
 import { TaskRepository } from '@/tasks/repositories/task.repository';
 
@@ -8,14 +7,7 @@ export class TaskRepositoryInMemory implements TaskRepository {
 	private tasks: Task[] = [];
 
 	async create(task: Partial<Task>): Promise<Task> {
-		const newTask: Task = {
-			id: randomUUID(),
-			completed: false,
-			createdAt: new Date(),
-			updatedAt: new Date(),
-			title: task.title || '',
-			description: task.description || '',
-		};
+		const newTask = { ...task } as Task;
 		this.tasks.push(newTask);
 		return newTask;
 	}

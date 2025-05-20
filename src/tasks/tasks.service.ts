@@ -11,8 +11,9 @@ import {
 	TaskRepository,
 } from '@/tasks/repositories/task.repository';
 import { CreateTaskDto } from '@/tasks/dtos/create-task.dto';
-import { TaskCreatedEvent } from './events/task-created.event';
-import { TaskCompletedEvent } from './events/task-completed.event';
+import { TaskCreatedEvent } from '@/tasks/events/task-created.event';
+import { TaskCompletedEvent } from '@/tasks/events/task-completed.event';
+import { TaskFactory } from '@/tasks/factories/task.factory';
 
 @Injectable()
 export class TasksService {
@@ -20,6 +21,7 @@ export class TasksService {
 		@Inject(TASK_REPOSITORY)
 		private readonly taskRepository: TaskRepository,
 		private eventEmitter: EventEmitter2,
+		private readonly taskFactory: TaskFactory,
 	) {}
 
 	async getTaskById(id: string): Promise<Task> {
@@ -29,11 +31,14 @@ export class TasksService {
 	}
 
 	async createTask(userEmail: string, data: CreateTaskDto): Promise<Task> {
-		const task = await this.taskRepository.create(data);
+		const newTask = this.taskFactory.createTask(data);
+		const task = await this.taskRepository.create(newTask);
+
 		this.eventEmitter.emit(
 			'task.created',
 			new TaskCreatedEvent(task.id, userEmail, 'New task created'),
 		);
+
 		return task;
 	}
 
