@@ -3,9 +3,22 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '@/users/entities/user.entity';
 import { UsersService } from '@/users/users.service';
 
+import { USER_REPOSITORY } from '@/users/repositories/user.repository';
+import { UserRepositoryTypeOrm } from '@/users/repositories/user.repository.typeorm';
+import { UserRepositoryInMemory } from '@/users/repositories/user.repository.memory';
+
 @Module({
 	imports: [TypeOrmModule.forFeature([User])],
-	providers: [UsersService],
+	providers: [
+		UsersService,
+		{
+			provide: USER_REPOSITORY,
+			useClass:
+				process.env.NODE_ENV === 'test'
+					? UserRepositoryInMemory
+					: UserRepositoryTypeOrm,
+		},
+	],
 	exports: [UsersService],
 })
 export class UsersModule {}
