@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Notification } from '@/notifications/entities/notification.entity';
@@ -12,7 +12,13 @@ export class NotificationsService {
 	) {}
 
 	async create(notification: CreateNotificationDto): Promise<Notification> {
-		const newNotification = this.notificationRepository.create(notification);
-		return this.notificationRepository.save(newNotification);
+		try {
+			const newNotification = this.notificationRepository.create(notification);
+			return this.notificationRepository.save(newNotification);
+		} catch (error) {
+			throw new BadRequestException(
+				`Failed to create notification: ${error.message}`,
+			);
+		}
 	}
 }
