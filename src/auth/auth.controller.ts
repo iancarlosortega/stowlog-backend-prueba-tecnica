@@ -11,6 +11,7 @@ import { LoginUserDto } from '@/auth/dtos/login-user.dto';
 import { RegisterUserDto } from '@/auth/dtos/register-user.dto';
 import { Auth } from '@/auth/decorators/auth.decorator';
 import { GetUser } from '@/auth/decorators/get-user.decorator';
+import { UserRoles } from '@/auth/constants/roles';
 import { User } from '@/users/entities/user.entity';
 
 @ApiTags('auth')
@@ -53,5 +54,18 @@ export class AuthController {
 	@ApiResponse({ status: '4XX', description: 'Invalid token' })
 	refreshToken(@GetUser() user: User) {
 		return this.authService.refreshToken(user);
+	}
+
+	@Get('only-admin')
+	@Auth(UserRoles.ADMIN)
+	@ApiOperation({ summary: 'Only accessible for admin users' })
+	@ApiBearerAuth('access-token')
+	@ApiResponse({
+		status: '2XX',
+		description: 'You are an admin',
+	})
+	@ApiResponse({ status: '4XX', description: 'Invalid token or role' })
+	onlyAdmin(@GetUser() user: User) {
+		return `You are an admin: ${user.username} and your role is ${user.role}`;
 	}
 }
