@@ -15,6 +15,7 @@ import {
 	ApiParam,
 	ApiBearerAuth,
 } from '@nestjs/swagger';
+import { seconds, Throttle } from '@nestjs/throttler';
 import { Auth } from '@/auth/decorators/auth.decorator';
 import { GetUser } from '@/auth/decorators/get-user.decorator';
 import { CreateTaskDto } from '@/tasks/dtos/create-task.dto';
@@ -29,6 +30,7 @@ export class TasksController {
 
 	@Post()
 	@Auth()
+	@Throttle({ default: { ttl: seconds(60), limit: 10 } })
 	@ApiOperation({ summary: 'Create a new task' })
 	@ApiBearerAuth('access-token')
 	@ApiResponse({

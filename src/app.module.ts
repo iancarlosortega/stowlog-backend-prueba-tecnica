@@ -11,6 +11,7 @@ import { DatabaseModule } from '@/database/database.module';
 import { HealthModule } from '@/health/health.module';
 import { MailModule } from '@/mail/mail.module';
 import { NotificationsModule } from '@/notifications/notifications.module';
+import { RateLimitModule } from '@/rate-limit/rate-limit.module';
 import { TasksModule } from '@/tasks/tasks.module';
 import { UsersModule } from '@/users/users.module';
 
@@ -27,6 +28,7 @@ import { UsersModule } from '@/users/users.module';
 		HealthModule,
 		MailModule,
 		NotificationsModule,
+		RateLimitModule,
 		TasksModule,
 		UsersModule,
 	],

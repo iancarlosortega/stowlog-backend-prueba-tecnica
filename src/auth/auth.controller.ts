@@ -5,6 +5,7 @@ import {
 	ApiResponse,
 	ApiTags,
 } from '@nestjs/swagger';
+import { seconds, Throttle } from '@nestjs/throttler';
 import { AuthService } from '@/auth/auth.service';
 import { LoginResponseDto } from '@/auth/dtos/login-response.dto';
 import { LoginUserDto } from '@/auth/dtos/login-user.dto';
@@ -20,6 +21,7 @@ export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
 	@Post('register')
+	@Throttle({ default: { ttl: seconds(60), limit: 5 } })
 	@ApiOperation({ summary: 'Register a new user' })
 	@ApiResponse({
 		status: '2XX',
@@ -30,7 +32,9 @@ export class AuthController {
 	register(@Body() registerUserDto: RegisterUserDto) {
 		return this.authService.register(registerUserDto);
 	}
+
 	@Post('login')
+	@Throttle({ default: { ttl: seconds(60), limit: 5 } })
 	@ApiOperation({ summary: 'Login a user' })
 	@ApiResponse({
 		status: '2XX',
