@@ -8,6 +8,7 @@ This is a simple API for managing tasks. It allows you to create, read, update, 
 
 - Node.js
 - Docker
+- Pnpm (optional, but recommended)
 
 ### Setup
 
