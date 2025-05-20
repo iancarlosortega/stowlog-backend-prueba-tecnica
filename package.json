@@ -16,11 +16,11 @@
 		"format": "biome format",
 		"fix": "biome check --write && biome format --write && biome lint --write",
 		"types:check": "tsc --noEmit",
-		"test": "jest",
-		"test:watch": "jest --watch",
-		"test:cov": "jest --coverage",
-		"test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-		"test:e2e": "jest --config ./test/jest-e2e.json",
+		"test": "jest --config jest.config.js",
+		"test:watch": "jest --config jest.config.js --watch",
+		"test:cov": "jest --config jest.config.js --coverage",
+		"test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand --config jest.config.js",
+		"test:e2e": "jest --config ./test/jest-e2e.config.js",
 		"prepare": "husky"
 	},
 	"dependencies": {
