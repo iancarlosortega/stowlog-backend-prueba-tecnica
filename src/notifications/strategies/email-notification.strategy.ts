@@ -1,10 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { NotificationStrategy } from '@/notifications/strategies/notification.strategy';
+import { MailService } from '@/mail/mail.service';
 
 @Injectable()
 export class EmailNotificationStrategy implements NotificationStrategy {
+	constructor(private readonly mailService: MailService) {}
+
 	async send(recipient: string, message: string): Promise<void> {
-		// Aquí usarías tu MailService (por ejemplo con Nodemailer)
-		console.log(`Enviando email a ${recipient}: ${message}`);
+		await this.mailService.sendMail(
+			recipient,
+			'Notification from Tasks API',
+			message,
+		);
 	}
 }
