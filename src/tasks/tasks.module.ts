@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Task } from '@/tasks/entities/task.entity';
 import { AuthModule } from '@/auth/auth.module';
+import { NotificationsModule } from '@/notifications/notifications.module';
+import { Task } from '@/tasks/entities/task.entity';
+import { TaskEventsListener } from '@/tasks/listeners/task-events.listener';
 
 import { TASK_REPOSITORY } from '@/tasks/repositories/task.repository';
 import { TaskRepositoryTypeOrm } from '@/tasks/repositories/task.repository.impl';
@@ -14,6 +16,7 @@ import { TasksController } from '@/tasks/tasks.controller';
 	controllers: [TasksController],
 	providers: [
 		TasksService,
+		TaskEventsListener,
 		{
 			provide: TASK_REPOSITORY,
 			useClass:
@@ -22,7 +25,7 @@ import { TasksController } from '@/tasks/tasks.controller';
 					: TaskRepositoryTypeOrm,
 		},
 	],
-	imports: [TypeOrmModule.forFeature([Task]), AuthModule],
+	imports: [TypeOrmModule.forFeature([Task]), AuthModule, NotificationsModule],
 	exports: [TasksService],
 })
 export class TasksModule {}

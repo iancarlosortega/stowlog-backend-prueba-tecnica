@@ -3,8 +3,16 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Notification } from '@/notifications/entities/notification.entity';
 import { NotificationsService } from '@/notifications/notifications.service';
 
+import { EmailNotificationStrategy } from '@/notifications/strategies/email-notification.strategy';
+import { InternalMessageNotificationStrategy } from '@/notifications/strategies/internal-message-notification.strategy';
+
 @Module({
 	imports: [TypeOrmModule.forFeature([Notification])],
-	providers: [NotificationsService],
+	providers: [
+		EmailNotificationStrategy,
+		InternalMessageNotificationStrategy,
+		NotificationsService,
+	],
+	exports: [EmailNotificationStrategy, InternalMessageNotificationStrategy],
 })
 export class NotificationsModule {}

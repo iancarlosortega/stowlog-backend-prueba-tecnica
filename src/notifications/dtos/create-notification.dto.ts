@@ -7,7 +7,7 @@ import {
 	MaxLength,
 	MinLength,
 } from 'class-validator';
-import { NotificationType } from '@/notifications/constants/notification-types';
+import { AlertType } from '@/notifications/constants/notification-alerts-types';
 
 export class CreateNotificationDto {
 	@ApiProperty({
@@ -29,14 +29,14 @@ export class CreateNotificationDto {
 	message: string;
 	@ApiProperty({
 		description: 'The type of the notification',
-		example: NotificationType.INFO,
-		enum: NotificationType,
-		default: NotificationType.INFO,
+		example: AlertType.INFO,
+		enum: AlertType,
+		default: AlertType.INFO,
 		required: false,
 	})
-	@IsEnum(NotificationType, {
-		message: `Type must be one of the following: ${Object.values(NotificationType).join(', ')}`,
+	@IsEnum(AlertType, {
+		message: `Type must be one of the following: ${Object.values(AlertType).join(', ')}`,
 	})
 	@IsNotEmpty()
-	type?: NotificationType;
+	type?: AlertType;
 }

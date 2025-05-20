@@ -9,7 +9,7 @@ import {
 	JoinColumn,
 } from 'typeorm';
 import { User } from '@/users/entities/user.entity';
-import { NotificationType } from '@/notifications/constants/notification-types';
+import { AlertType } from '@/notifications/constants/notification-alerts-types';
 
 @Entity()
 export class Notification {
@@ -29,15 +29,15 @@ export class Notification {
 
 	@ApiProperty({
 		description: 'Type of notification',
-		example: NotificationType.INFO,
-		enum: NotificationType,
+		example: AlertType.INFO,
+		enum: AlertType,
 	})
 	@Column({
 		type: 'enum',
-		enum: NotificationType,
-		default: NotificationType.INFO,
+		enum: AlertType,
+		default: AlertType.INFO,
 	})
-	type: NotificationType;
+	type: AlertType;
 
 	@ApiProperty({
 		description: 'Whether the notification has been read',

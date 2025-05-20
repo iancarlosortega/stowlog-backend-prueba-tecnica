@@ -15,11 +15,12 @@ import {
 	ApiParam,
 	ApiBearerAuth,
 } from '@nestjs/swagger';
+import { Auth } from '@/auth/decorators/auth.decorator';
+import { GetUser } from '@/auth/decorators/get-user.decorator';
 import { CreateTaskDto } from '@/tasks/dtos/create-task.dto';
 import { UpdateTaskDto } from '@/tasks/dtos/update-task.dto';
 import { Task } from '@/tasks/entities/task.entity';
 import { TasksService } from '@/tasks/tasks.service';
-import { Auth } from '@/auth/decorators/auth.decorator';
 
 @ApiTags('tasks')
 @Controller('tasks')
@@ -39,8 +40,11 @@ export class TasksController {
 		status: 400,
 		description: 'Bad Request - Invalid task data',
 	})
-	create(@Body() createTaskDto: CreateTaskDto): Promise<Task> {
-		return this.taskService.createTask(createTaskDto);
+	create(
+		@Body() createTaskDto: CreateTaskDto,
+		@GetUser('id') userId: string,
+	): Promise<Task> {
+		return this.taskService.createTask(userId, createTaskDto);
 	}
 
 	@Get(':id')
@@ -84,10 +88,11 @@ export class TasksController {
 		description: 'Bad Request - Invalid update data',
 	})
 	update(
-		@Param('id', ParseUUIDPipe) id: string,
+		@Param('id', ParseUUIDPipe) taskId: string,
 		@Body() updateTaskDto: UpdateTaskDto,
+		@GetUser('id') userId: string,
 	): Promise<Task> {
-		return this.taskService.updateTask(id, updateTaskDto);
+		return this.taskService.updateTask(userId, taskId, updateTaskDto);
 	}
 
 	@Delete(':id')

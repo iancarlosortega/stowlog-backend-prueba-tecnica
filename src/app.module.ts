@@ -5,14 +5,15 @@ import { EnvConfiguration } from '@/config/app.config';
 import { EnvSchema } from '@/config/validation';
 
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 import { AuthModule } from '@/auth/auth.module';
 import { UsersModule } from '@/users/users.module';
+import { TasksModule } from '@/tasks/tasks.module';
+import { NotificationsModule } from '@/notifications/notifications.module';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { TasksModule } from './tasks/tasks.module';
-import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
 	imports: [
@@ -24,7 +25,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 		TypeOrmModule.forRoot({
 			type: 'postgres',
 			host: process.env.DB_HOST,
-			port: +process.env.DB_PORT!,
+			port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 5432,
 			database: process.env.DB_NAME,
 			username: process.env.DB_USER,
 			password: process.env.DB_PASSWORD,
@@ -40,6 +41,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 						: null,
 			},
 		}),
+		EventEmitterModule.forRoot(),
 		AuthModule,
 		UsersModule,
 		TasksModule,

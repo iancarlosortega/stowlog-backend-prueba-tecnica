@@ -4,18 +4,22 @@ import {
 	InternalServerErrorException,
 	NotFoundException,
 } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Task } from '@/tasks/entities/task.entity';
 import {
 	TASK_REPOSITORY,
 	TaskRepository,
 } from '@/tasks/repositories/task.repository';
 import { CreateTaskDto } from '@/tasks/dtos/create-task.dto';
+import { TaskCreatedEvent } from './events/task-created.event';
+import { TaskCompletedEvent } from './events/task-completed.event';
 
 @Injectable()
 export class TasksService {
 	constructor(
 		@Inject(TASK_REPOSITORY)
 		private readonly taskRepository: TaskRepository,
+		private eventEmitter: EventEmitter2,
 	) {}
 
 	async getTaskById(id: string): Promise<Task> {
@@ -24,17 +28,35 @@ export class TasksService {
 		return task;
 	}
 
-	async createTask(data: CreateTaskDto): Promise<Task> {
-		return this.taskRepository.create(data);
+	async createTask(userId: string, data: CreateTaskDto): Promise<Task> {
+		const task = await this.taskRepository.create(data);
+		this.eventEmitter.emit(
+			'task.created',
+			new TaskCreatedEvent(task.id, userId, 'New task created'),
+		);
+		return task;
 	}
 
-	async updateTask(id: string, data: Partial<Task>): Promise<Task> {
+	async updateTask(
+		userId: string,
+		id: string,
+		data: Partial<Task>,
+	): Promise<Task> {
 		try {
 			const updatedTask = await this.taskRepository.update(id, data);
 
 			if (!updatedTask) {
 				throw new NotFoundException(`Task ${id} not found`);
 			}
+
+			this.eventEmitter.emit(
+				'task.completed',
+				new TaskCompletedEvent(
+					updatedTask.id,
+					userId,
+					'Your task has been completed',
+				),
+			);
 
 			return updatedTask;
 		} catch (error) {
