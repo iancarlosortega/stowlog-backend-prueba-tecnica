@@ -91,8 +91,9 @@ export class AuthService {
 	}
 
 	refreshToken(user: User) {
+		const { password: _, ...rest } = user;
 		return {
-			user,
+			user: rest,
 			token: this.getJwtToken({ id: user.id }),
 		};
 	}
@@ -102,7 +103,6 @@ export class AuthService {
 	}
 
 	private handleDBExceptions(error: any): never {
-		this.logger.error(error);
 		if (error.status === 400) {
 			throw new BadRequestException(error.response.message);
 		}
@@ -112,7 +112,7 @@ export class AuthService {
 		if (error.code === '23505') {
 			throw new BadRequestException(error.detail);
 		}
-		console.log(error);
+		this.logger.error(error);
 		throw new InternalServerErrorException(
 			'Unexpected error, check server logs',
 		);
