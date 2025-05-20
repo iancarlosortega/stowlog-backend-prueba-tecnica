@@ -42,9 +42,9 @@ export class TasksController {
 	})
 	create(
 		@Body() createTaskDto: CreateTaskDto,
-		@GetUser('id') userId: string,
+		@GetUser('email') userEmail: string,
 	): Promise<Task> {
-		return this.taskService.createTask(userId, createTaskDto);
+		return this.taskService.createTask(userEmail, createTaskDto);
 	}
 
 	@Get(':id')

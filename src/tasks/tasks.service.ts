@@ -28,11 +28,11 @@ export class TasksService {
 		return task;
 	}
 
-	async createTask(userId: string, data: CreateTaskDto): Promise<Task> {
+	async createTask(userEmail: string, data: CreateTaskDto): Promise<Task> {
 		const task = await this.taskRepository.create(data);
 		this.eventEmitter.emit(
 			'task.created',
-			new TaskCreatedEvent(task.id, userId, 'New task created'),
+			new TaskCreatedEvent(task.id, userEmail, 'New task created'),
 		);
 		return task;
 	}

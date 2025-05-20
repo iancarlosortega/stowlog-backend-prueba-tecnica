@@ -14,7 +14,7 @@ export class TaskEventsListener {
 
 	@OnEvent('task.created')
 	async handleTaskCreated(event: TaskCreatedEvent) {
-		await this.emailStrategy.send(event.userId, event.message);
+		await this.emailStrategy.send(event.userEmail, event.message);
 	}
 
 	@OnEvent('task.completed')
