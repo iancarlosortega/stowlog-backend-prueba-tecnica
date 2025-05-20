@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { User } from '@/users/entities/user.entity';
 import { UserRepository } from '@/users/repositories/user.repository';
 import { CreateUserDto } from '@/users/dtos/create-user.dto';
-import { generateUuid } from '@/shared/utils/uuid';
+import { generateUUID } from '@/shared/utils/uuid';
 
 @Injectable()
 export class UserRepositoryInMemory implements UserRepository {
@@ -10,7 +10,7 @@ export class UserRepositoryInMemory implements UserRepository {
 
 	async create(createUserDto: CreateUserDto): Promise<User> {
 		const newUser: User = {
-			id: generateUuid(),
+			id: generateUUID(),
 			...createUserDto,
 			isActive: true,
 			createdAt: new Date(),
