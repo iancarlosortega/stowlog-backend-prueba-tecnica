@@ -1,13 +1,21 @@
-// src/notifications/strategies/internal-message-notification.strategy.ts
 import { Injectable } from '@nestjs/common';
-import { NotificationStrategy } from './notification.strategy';
+import { NotificationStrategy } from '@/notifications/strategies/notification.strategy';
+import { NotificationsService } from '@/notifications/notifications.service';
 
 @Injectable()
 export class InternalMessageNotificationStrategy
 	implements NotificationStrategy
 {
+	constructor(private readonly notificationsService: NotificationsService) {}
+
 	async send(recipient: string, message: string): Promise<void> {
-		// Simula guardar en base de datos o emitir por WebSocket
-		console.log(`Guardando mensaje interno para ${recipient}: ${message}`);
+		try {
+			await this.notificationsService.create({
+				userId: recipient,
+				message,
+			});
+		} catch (error) {
+			throw new Error(`Failed to send internal message: ${error.message}`);
+		}
 	}
 }
