@@ -25,4 +25,4 @@ This is a simple API for managing tasks. It allows you to create, read, update, 
    ```bash
    pnpm start:dev
    ```
-6. Access the API docs at `http://localhost:3000/api`
+6. Access the API docs at `http://localhost:4000/api`
