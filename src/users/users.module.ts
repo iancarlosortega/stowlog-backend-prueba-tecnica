@@ -14,7 +14,7 @@ import { UserRepositoryInMemory } from '@/users/repositories/user.repository.mem
 		{
 			provide: USER_REPOSITORY,
 			useClass:
-				process.env.NODE_ENV === 'test'
+				process.env.ENVIRONMENT === 'TESTING'
 					? UserRepositoryInMemory
 					: UserRepositoryTypeOrm,
 		},
