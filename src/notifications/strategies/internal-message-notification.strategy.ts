@@ -10,6 +10,7 @@ export class InternalMessageNotificationStrategy
 
 	async send(recipient: string, message: string): Promise<void> {
 		try {
+			console.log('Sending internal message notification...');
 			await this.notificationsService.create({
 				userId: recipient,
 				message,
